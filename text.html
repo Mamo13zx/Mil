@@ -1,0 +1,1297 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MarketPlace - Доска объявлений</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Глобальные стили */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #ff5722;
+            --accent-color: #ffdd00;
+            --dark-color: #333;
+            --light-color: #f5f5f5;
+            --text-color: #333;
+            --text-light: #666;
+            --border-color: #e0e0e0;
+            --shadow: 0 2px 10px rgba(0,0,0,0.1);
+            --transition: all 0.3s ease;
+        }
+        
+        body {
+            background-color: var(--light-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* Шапка */
+        .header {
+            background-color: white;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .header-top {
+            background-color: var(--accent-color);
+            padding: 10px 0;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .header-main {
+            display: flex;
+            align-items: center;
+            padding: 15px 0;
+        }
+        
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-right: 30px;
+            cursor: pointer;
+        }
+        
+        .logo span {
+            color: var(--secondary-color);
+        }
+        
+        .search-container {
+            flex-grow: 1;
+            position: relative;
+            margin-right: 20px;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 12px 20px;
+            border: 2px solid var(--accent-color);
+            border-radius: 30px;
+            font-size: 16px;
+            outline: none;
+            transition: var(--transition);
+        }
+        
+        .search-input:focus {
+            border-color: var(--primary-color);
+        }
+        
+        .search-button {
+            position: absolute;
+            right: 5px;
+            top: 5px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            padding: 8px 20px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .user-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background-color: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .add-button {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            padding: 10px 20px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .logout-btn {
+            background-color: #f0f0f0;
+            border: none;
+            border-radius: 20px;
+            padding: 8px 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        /* Навигация */
+        .nav-container {
+            background-color: white;
+            border-top: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .nav-menu {
+            display: flex;
+            list-style: none;
+        }
+        
+        .nav-item {
+            padding: 15px 20px;
+            cursor: pointer;
+            transition: var(--transition);
+            border-bottom: 3px solid transparent;
+        }
+        
+        .nav-item:hover, .nav-item.active {
+            border-bottom: 3px solid var(--primary-color);
+            color: var(--primary-color);
+        }
+        
+        /* Основной контент */
+        .main-content {
+            flex-grow: 1;
+            padding: 30px 0;
+        }
+        
+        /* Карточки объявлений */
+        .ads-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+        
+        .ad-card {
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+        
+        .ad-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        }
+        
+        .ad-image {
+            height: 200px;
+            background-color: #ddd;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+        }
+        
+        .ad-price {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background-color: rgba(0,0,0,0.7);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        .ad-info {
+            padding: 20px;
+        }
+        
+        .ad-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 16px;
+            height: 48px;
+            overflow: hidden;
+        }
+        
+        .ad-location {
+            color: var(--text-light);
+            font-size: 14px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .ad-date {
+            color: #999;
+            font-size: 12px;
+        }
+        
+        /* Формы авторизации */
+        .auth-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 70vh;
+        }
+        
+        .auth-card {
+            background-color: white;
+            border-radius: 15px;
+            padding: 40px;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: var(--shadow);
+        }
+        
+        .auth-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .auth-title {
+            font-size: 28px;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+        
+        .auth-subtitle {
+            color: var(--text-light);
+        }
+        
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 30px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .auth-tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--text-light);
+            transition: var(--transition);
+            border-bottom: 3px solid transparent;
+        }
+        
+        .auth-tab.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+        
+        .auth-form {
+            display: none;
+        }
+        
+        .auth-form.active {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 16px;
+            transition: var(--transition);
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+        
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-top: 10px;
+        }
+        
+        .submit-btn:hover {
+            background-color: #0056b3;
+        }
+        
+        .auth-divider {
+            text-align: center;
+            margin: 25px 0;
+            color: var(--text-light);
+            position: relative;
+        }
+        
+        .auth-divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background-color: var(--border-color);
+        }
+        
+        .auth-divider span {
+            background-color: white;
+            padding: 0 15px;
+            position: relative;
+        }
+        
+        .social-auth {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .google-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 12px;
+            background-color: white;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .google-btn:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .guest-btn {
+            padding: 12px;
+            background-color: #f8f9fa;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .guest-btn:hover {
+            background-color: #e9ecef;
+        }
+        
+        .auth-switch {
+            text-align: center;
+            margin-top: 20px;
+            color: var(--text-light);
+        }
+        
+        .auth-switch a {
+            color: var(--primary-color);
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        /* Футер */
+        .footer {
+            background-color: var(--dark-color);
+            color: white;
+            padding: 40px 0;
+            margin-top: auto;
+        }
+        
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+        }
+        
+        .footer-section h3 {
+            margin-bottom: 20px;
+            color: var(--accent-color);
+        }
+        
+        .footer-links {
+            list-style: none;
+        }
+        
+        .footer-links li {
+            margin-bottom: 10px;
+        }
+        
+        .footer-links a {
+            color: #ddd;
+            transition: var(--transition);
+        }
+        
+        .footer-links a:hover {
+            color: var(--accent-color);
+        }
+        
+        .copyright {
+            text-align: center;
+            padding-top: 20px;
+            margin-top: 20px;
+            border-top: 1px solid #444;
+            color: #aaa;
+            font-size: 14px;
+        }
+        
+        /* Сообщения */
+        .message {
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            display: none;
+        }
+        
+        .success-message {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .error-message {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        /* Модальное окно */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+        
+        .modal {
+            background-color: white;
+            border-radius: 15px;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-title {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+        
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .header-main {
+                flex-wrap: wrap;
+            }
+            
+            .search-container {
+                order: 3;
+                margin-top: 15px;
+                margin-right: 0;
+                width: 100%;
+            }
+            
+            .nav-menu {
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+            
+            .ads-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+            
+            .auth-card {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Шапка сайта -->
+    <header class="header" id="mainHeader" style="display: none;">
+        <div class="header-top">
+            <div class="container">Бесплатная доставка от 2000 рублей!</div>
+        </div>
+        <div class="container">
+            <div class="header-main">
+                <div class="logo" onclick="window.location.href='#'">Market<span>Place</span></div>
+                <div class="search-container">
+                    <input type="text" class="search-input" placeholder="Найти товары и услуги">
+                    <button class="search-button">Найти</button>
+                </div>
+                <div class="user-actions" id="userActions">
+                    <!-- Здесь будет динамическое содержимое -->
+                </div>
+            </div>
+        </div>
+        <div class="nav-container">
+            <div class="container">
+                <ul class="nav-menu">
+                    <li class="nav-item active" onclick="filterAds('all')">Главная</li>
+                    <li class="nav-item" onclick="filterAds('electronics')">Электроника</li>
+                    <li class="nav-item" onclick="filterAds('real-estate')">Недвижимость</li>
+                    <li class="nav-item" onclick="filterAds('auto')">Авто</li>
+                    <li class="nav-item" onclick="filterAds('fashion')">Мода и стиль</li>
+                    <li class="nav-item" onclick="filterAds('home')">Для дома</li>
+                    <li class="nav-item" onclick="filterAds('services')">Услуги</li>
+                </ul>
+            </div>
+        </div>
+    </header>
+
+    <!-- Основной контент -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Страница авторизации (показывается по умолчанию) -->
+            <div class="auth-container" id="authContainer">
+                <div class="auth-card">
+                    <div class="auth-header">
+                        <h1 class="auth-title">Market<span>Place</span></h1>
+                        <p class="auth-subtitle">Доска бесплатных объявлений</p>
+                    </div>
+                    
+                    <!-- Сообщения -->
+                    <div class="message error-message" id="errorMessage"></div>
+                    <div class="message success-message" id="successMessage"></div>
+                    
+                    <!-- Вкладки -->
+                    <div class="auth-tabs">
+                        <div class="auth-tab active" onclick="showAuthTab('login')">Вход</div>
+                        <div class="auth-tab" onclick="showAuthTab('register')">Регистрация</div>
+                    </div>
+                    
+                    <!-- Форма входа -->
+                    <form class="auth-form active" id="loginForm" onsubmit="loginUser(event)">
+                        <div class="form-group">
+                            <label class="form-label">Email или телефон</label>
+                            <input type="text" class="form-input" id="loginIdentifier" placeholder="email@example.com или +7..." required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Пароль</label>
+                            <input type="password" class="form-input" id="loginPassword" placeholder="Введите пароль" required>
+                        </div>
+                        <button type="submit" class="submit-btn">Войти</button>
+                        
+                        <div class="auth-divider"><span>Или</span></div>
+                        
+                        <div class="social-auth">
+                            <button type="button" class="google-btn" onclick="googleLogin()">
+                                <i class="fab fa-google" style="color: #DB4437;"></i> Войти через Google
+                            </button>
+                            <button type="button" class="guest-btn" onclick="guestLogin()">
+                                <i class="fas fa-user"></i> Войти как гость
+                            </button>
+                        </div>
+                        
+                        <div class="auth-switch">
+                            Нет аккаунта? <a onclick="showAuthTab('register')">Зарегистрироваться</a>
+                        </div>
+                    </form>
+                    
+                    <!-- Форма регистрации -->
+                    <form class="auth-form" id="registerForm" onsubmit="registerUser(event)">
+                        <div class="form-group">
+                            <label class="form-label">Имя</label>
+                            <input type="text" class="form-input" id="registerName" placeholder="Ваше имя" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-input" id="registerEmail" placeholder="email@example.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Телефон</label>
+                            <input type="tel" class="form-input" id="registerPhone" placeholder="+7 (999) 123-45-67" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Пароль</label>
+                            <input type="password" class="form-input" id="registerPassword" placeholder="Придумайте пароль" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Подтвердите пароль</label>
+                            <input type="password" class="form-input" id="registerConfirmPassword" placeholder="Повторите пароль" required>
+                        </div>
+                        <button type="submit" class="submit-btn">Зарегистрироваться</button>
+                        
+                        <div class="auth-switch">
+                            Уже есть аккаунт? <a onclick="showAuthTab('login')">Войти</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Главная страница с объявлениями (скрыта по умолчанию) -->
+            <div id="mainPage" style="display: none;">
+                <div class="page-header">
+                    <h2>Рекомендуемые объявления</h2>
+                    <div class="sort-container">
+                        <select id="sortSelect" onchange="sortAds()" style="padding: 8px; border-radius: 5px; border: 1px solid var(--border-color);">
+                            <option value="newest">Сначала новые</option>
+                            <option value="cheapest">Сначала дешевле</option>
+                            <option value="expensive">Сначала дороже</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="ads-grid" id="adsGrid">
+                    <!-- Объявления будут загружаться динамически -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Футер -->
+    <footer class="footer" id="mainFooter" style="display: none;">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>О компании</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">О нас</a></li>
+                        <li><a href="#">Контакты</a></li>
+                        <li><a href="#">Реклама на сайте</a></li>
+                        <li><a href="#">Вакансии</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Помощь</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">Как купить</a></li>
+                        <li><a href="#">Как продать</a></li>
+                        <li><a href="#">Правила безопасности</a></li>
+                        <li><a href="#">Частые вопросы</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Сервисы</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">Доставка</a></li>
+                        <li><a href="#">Проверка продавцов</a></li>
+                        <li><a href="#">Страхование сделок</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Мы в соцсетях</h3>
+                    <ul class="footer-links">
+                        <li><a href="#"><i class="fab fa-vk"></i> ВКонтакте</a></li>
+                        <li><a href="#"><i class="fab fa-telegram"></i> Telegram</a></li>
+                        <li><a href="#"><i class="fab fa-youtube"></i> YouTube</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                &copy; 2023 MarketPlace. Все права защищены.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Модальное окно добавления объявления -->
+    <div class="modal-overlay" id="addModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Подать объявление</h3>
+                <button class="close-modal" onclick="closeAddModal()">&times;</button>
+            </div>
+            <form id="adForm" onsubmit="submitAd(event)">
+                <div class="form-group">
+                    <label class="form-label">Название *</label>
+                    <input type="text" class="form-input" id="adTitle" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Категория *</label>
+                    <select class="form-input" id="adCategory" required>
+                        <option value="">Выберите категорию</option>
+                        <option value="electronics">Электроника</option>
+                        <option value="real-estate">Недвижимость</option>
+                        <option value="auto">Автомобили</option>
+                        <option value="fashion">Мода и стиль</option>
+                        <option value="home">Для дома</option>
+                        <option value="services">Услуги</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Описание *</label>
+                    <textarea class="form-input" id="adDescription" rows="4" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Цена (₽) *</label>
+                    <input type="number" class="form-input" id="adPrice" required min="0">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Город *</label>
+                    <input type="text" class="form-input" id="adCity" required>
+                </div>
+                <button type="submit" class="submit-btn">Опубликовать</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Глобальные переменные
+        let currentUser = null;
+        let allAds = [];
+        let currentFilter = 'all';
+
+        // Проверка авторизации при загрузке
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuth();
+            loadAds();
+        });
+
+        // Проверка авторизации
+        function checkAuth() {
+            const savedUser = localStorage.getItem('currentUser');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                showMainPage();
+            } else {
+                showAuthPage();
+            }
+        }
+
+        // Показать страницу авторизации
+        function showAuthPage() {
+            document.getElementById('authContainer').style.display = 'flex';
+            document.getElementById('mainHeader').style.display = 'none';
+            document.getElementById('mainPage').style.display = 'none';
+            document.getElementById('mainFooter').style.display = 'none';
+        }
+
+        // Показать главную страницу
+        function showMainPage() {
+            document.getElementById('authContainer').style.display = 'none';
+            document.getElementById('mainHeader').style.display = 'block';
+            document.getElementById('mainPage').style.display = 'block';
+            document.getElementById('mainFooter').style.display = 'block';
+            
+            updateUserHeader();
+            renderAds();
+        }
+
+        // Обновить шапку с информацией о пользователе
+        function updateUserHeader() {
+            const userActions = document.getElementById('userActions');
+            
+            if (currentUser) {
+                const firstLetter = currentUser.name ? currentUser.name.charAt(0).toUpperCase() : 'U';
+                const isGuest = currentUser.loginType === 'guest';
+                
+                userActions.innerHTML = `
+                    <div class="user-profile">
+                        <div class="user-avatar" style="background-color: ${isGuest ? '#666' : '#007bff'}">
+                            ${firstLetter}
+                        </div>
+                        <span>${currentUser.name}</span>
+                    </div>
+                    <button class="add-button" onclick="showAddModal()">
+                        <i class="fas fa-plus"></i> Подать объявление
+                    </button>
+                    <button class="logout-btn" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> Выйти
+                    </button>
+                `;
+            }
+        }
+
+        // Переключение между вкладками авторизации
+        function showAuthTab(tabName) {
+            // Сброс сообщений
+            hideMessages();
+            
+            // Обновление активных вкладок
+            document.querySelectorAll('.auth-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelector(`.auth-tab[onclick*="${tabName}"]`).classList.add('active');
+            
+            // Показать нужную форму
+            document.querySelectorAll('.auth-form').forEach(form => {
+                form.classList.remove('active');
+            });
+            document.getElementById(`${tabName}Form`).classList.add('active');
+            
+            // Сброс формы регистрации
+            if (tabName === 'register') {
+                document.getElementById('registerForm').reset();
+            }
+        }
+
+        // Регистрация пользователя
+        function registerUser(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('registerName').value.trim();
+            const email = document.getElementById('registerEmail').value.trim();
+            const phone = document.getElementById('registerPhone').value.trim();
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('registerConfirmPassword').value;
+            
+            // Валидация
+            if (!name || !email || !phone || !password || !confirmPassword) {
+                showError('Заполните все поля');
+                return;
+            }
+            
+            if (!validateEmail(email)) {
+                showError('Введите корректный email');
+                return;
+            }
+            
+            if (password.length < 6) {
+                showError('Пароль должен быть не менее 6 символов');
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                showError('Пароли не совпадают');
+                return;
+            }
+            
+            // Проверка существования пользователя
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const userExists = users.some(u => u.email === email || u.phone === phone);
+            
+            if (userExists) {
+                showError('Пользователь с таким email или телефоном уже существует');
+                return;
+            }
+            
+            // Создание нового пользователя
+            const newUser = {
+                id: Date.now(),
+                name: name,
+                email: email,
+                phone: phone,
+                password: btoa(password), // Простое кодирование (в реальном приложении используйте хеширование)
+                createdAt: new Date().toISOString(),
+                loginType: 'email'
+            };
+            
+            // Сохранение пользователя
+            users.push(newUser);
+            localStorage.setItem('users', JSON.stringify(users));
+            
+            // Автоматический вход
+            currentUser = newUser;
+            localStorage.setItem('currentUser', JSON.stringify(newUser));
+            
+            showSuccess('Регистрация успешна!');
+            
+            // Переход на главную страницу через 1 секунду
+            setTimeout(() => {
+                showMainPage();
+            }, 1000);
+        }
+
+        // Вход пользователя
+        function loginUser(event) {
+            event.preventDefault();
+            
+            const identifier = document.getElementById('loginIdentifier').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            
+            // Поиск пользователя
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            let user = null;
+            
+            // Проверка по email или телефону
+            if (identifier.includes('@')) {
+                user = users.find(u => u.email === identifier && u.password === btoa(password));
+            } else {
+                user = users.find(u => u.phone === identifier && u.password === btoa(password));
+            }
+            
+            if (user) {
+                currentUser = user;
+                localStorage.setItem('currentUser', JSON.stringify(user));
+                showSuccess('Вход выполнен успешно!');
+                
+                setTimeout(() => {
+                    showMainPage();
+                }, 1000);
+            } else {
+                showError('Неверный email/телефон или пароль');
+            }
+        }
+
+        // Вход через Google (имитация)
+        function googleLogin() {
+            // В реальном приложении здесь будет интеграция с Google OAuth
+            currentUser = {
+                id: Date.now(),
+                name: 'Google User',
+                email: 'google-user@example.com',
+                loginType: 'google'
+            };
+            
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            showSuccess('Вход через Google выполнен!');
+            
+            setTimeout(() => {
+                showMainPage();
+            }, 1000);
+        }
+
+        // Вход как гость
+        function guestLogin() {
+            currentUser = {
+                id: 'guest_' + Date.now(),
+                name: 'Гость',
+                email: 'guest@example.com',
+                loginType: 'guest'
+            };
+            
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            showSuccess('Вы вошли как гость');
+            
+            setTimeout(() => {
+                showMainPage();
+            }, 1000);
+        }
+
+        // Выход из системы
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('currentUser');
+            showAuthPage();
+            showSuccess('Вы вышли из системы');
+        }
+
+        // Загрузка объявлений
+        function loadAds() {
+            const savedAds = localStorage.getItem('marketplaceAds');
+            if (savedAds) {
+                allAds = JSON.parse(savedAds);
+            } else {
+                // Демо-объявления
+                allAds = [
+                    {
+                        id: 1,
+                        title: 'Смартфон iPhone 12, 128 ГБ, отличное состояние',
+                        description: 'Продемонстрирую работу телефона, все функции исправны. В комплекте зарядное устройство и кабель.',
+                        category: 'electronics',
+                        price: 15000,
+                        city: 'Москва',
+                        date: new Date().toISOString(),
+                        authorId: 0
+                    },
+                    {
+                        id: 2,
+                        title: 'Ноутбук HP Pavilion, 16 ГБ ОЗУ, 512 ГБ SSD',
+                        description: 'Ноутбук в отличном состоянии, 2 года использования. Идеален для работы и учебы.',
+                        category: 'electronics',
+                        price: 45000,
+                        city: 'Санкт-Петербург',
+                        date: new Date(Date.now() - 86400000).toISOString(),
+                        authorId: 0
+                    },
+                    {
+                        id: 3,
+                        title: 'Кожаная куртка мужская, размер 50, новая',
+                        description: 'Куртка из натуральной кожи, никогда не носил, осталась после подарка.',
+                        category: 'fashion',
+                        price: 3500,
+                        city: 'Екатеринбург',
+                        date: new Date(Date.now() - 172800000).toISOString(),
+                        authorId: 0
+                    },
+                    {
+                        id: 4,
+                        title: 'Диван угловой, новый, с доставкой',
+                        description: 'Угловой диван, цвет серый, механизм еврокнижка. Доставка по городу бесплатно.',
+                        category: 'home',
+                        price: 120000,
+                        city: 'Казань',
+                        date: new Date().toISOString(),
+                        authorId: 0
+                    },
+                    {
+                        id: 5,
+                        title: 'Велосипед горный, 21 скорость',
+                        description: 'Велосипед в хорошем состоянии, недавно заменена цепь. Торг уместен.',
+                        category: 'auto',
+                        price: 8500,
+                        city: 'Новосибирск',
+                        date: new Date(Date.now() - 259200000).toISOString(),
+                        authorId: 0
+                    },
+                    {
+                        id: 6,
+                        title: 'Услуги сантехника',
+                        description: 'Установка и ремонт сантехники любой сложности. Гарантия на работы.',
+                        category: 'services',
+                        price: 2000,
+                        city: 'Ростов-на-Дону',
+                        date: new Date(Date.now() - 43200000).toISOString(),
+                        authorId: 0
+                    }
+                ];
+                saveAds();
+            }
+        }
+
+        // Сохранение объявлений
+        function saveAds() {
+            localStorage.setItem('marketplaceAds', JSON.stringify(allAds));
+        }
+
+        // Рендеринг объявлений
+        function renderAds() {
+            const adsGrid = document.getElementById('adsGrid');
+            
+            // Фильтрация
+            let filteredAds = currentFilter === 'all' 
+                ? allAds 
+                : allAds.filter(ad => ad.category === currentFilter);
+            
+            // Сортировка
+            const sortBy = document.getElementById('sortSelect').value;
+            filteredAds.sort((a, b) => {
+                switch(sortBy) {
+                    case 'cheapest': return a.price - b.price;
+                    case 'expensive': return b.price - a.price;
+                    case 'newest':
+                    default: return new Date(b.date) - new Date(a.date);
+                }
+            });
+            
+            // Очистка и рендеринг
+            adsGrid.innerHTML = '';
+            
+            if (filteredAds.length === 0) {
+                adsGrid.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #666;">
+                        <i class="fas fa-box-open" style="font-size: 50px; margin-bottom: 20px; color: #ddd;"></i>
+                        <h3>Объявлений пока нет</h3>
+                        <p>Будьте первым, кто разместит объявление!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            filteredAds.forEach(ad => {
+                const categoryColors = {
+                    'electronics': '#4CAF50',
+                    'real-estate': '#2196F3',
+                    'auto': '#FF9800',
+                    'fashion': '#9C27B0',
+                    'home': '#009688',
+                    'services': '#795548'
+                };
+                
+                const color = categoryColors[ad.category] || '#666';
+                const date = new Date(ad.date);
+                const now = new Date();
+                const diffDays = Math.floor((now - date) / (1000 * 60 * 60 * 24));
+                
+                let dateText;
+                if (diffDays === 0) dateText = 'Сегодня';
+                else if (diffDays === 1) dateText = 'Вчера';
+                else if (diffDays < 7) dateText = `${diffDays} дня назад`;
+                else dateText = date.toLocaleDateString('ru-RU');
+                
+                const adCard = document.createElement('div');
+                adCard.className = 'ad-card';
+                adCard.innerHTML = `
+                    <div class="ad-image" style="background-color: ${color}">
+                        <i class="fas fa-${getCategoryIcon(ad.category)}"></i>
+                        <div class="ad-price">${formatPrice(ad.price)} ₽</div>
+                    </div>
+                    <div class="ad-info">
+                        <div class="ad-title">${ad.title}</div>
+                        <div class="ad-location">
+                            <i class="fas fa-map-marker-alt"></i> ${ad.city}
+                        </div>
+                        <div class="ad-date">${dateText}</div>
+                    </div>
+                `;
+                
+                adsGrid.appendChild(adCard);
+            });
+        }
+
+        // Фильтрация объявлений
+        function filterAds(category) {
+            currentFilter = category;
+            
+            // Обновление активной вкладки
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            renderAds();
+        }
+
+        // Сортировка объявлений
+        function sortAds() {
+            renderAds();
+        }
+
+        // Показать модальное окно добавления
+        function showAddModal() {
+            if (!currentUser) {
+                showError('Для добавления объявления необходимо войти в систему');
+                return;
+            }
+            
+            document.getElementById('adForm').reset();
+            document.getElementById('addModal').style.display = 'flex';
+        }
+
+        // Закрыть модальное окно
+        function closeAddModal() {
+            document.getElementById('addModal').style.display = 'none';
+        }
+
+        // Добавить объявление
+        function submitAd(event) {
+            event.preventDefault();
+            
+            const title = document.getElementById('adTitle').value;
+            const category = document.getElementById('adCategory').value;
+            const description = document.getElementById('adDescription').value;
+            const price = parseInt(document.getElementById('adPrice').value);
+            const city = document.getElementById('adCity').value;
+            
+            if (!title || !category || !description || !price || !city) {
+                showError('Заполните все поля');
+                return;
+            }
+            
+            const newAd = {
+                id: Date.now(),
+                title: title,
+                description: description,
+                category: category,
+                price: price,
+                city: city,
+                date: new Date().toISOString(),
+                authorId: currentUser.id
+            };
+            
+            allAds.unshift(newAd);
+            saveAds();
+            renderAds();
+            closeAddModal();
+            
+            showSuccess('Объявление успешно добавлено!');
+        }
+
+        // Вспомогательные функции
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+
+        function getCategoryIcon(category) {
+            const icons = {
+                'electronics': 'laptop',
+                'real-estate': 'home',
+                'auto': 'car',
+                'fashion': 'tshirt',
+                'home': 'couch',
+                'services': 'tools'
+            };
+            return icons[category] || 'box';
+        }
+
+        function formatPrice(price) {
+            return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+        }
+
+        function showError(message) {
+            const element = document.getElementById('errorMessage');
+            element.textContent = message;
+            element.style.display = 'block';
+            setTimeout(() => element.style.display = 'none', 5000);
+        }
+
+        function showSuccess(message) {
+            const element = document.getElementById('successMessage');
+            element.textContent = message;
+            element.style.display = 'block';
+            setTimeout(() => element.style.display = 'none', 5000);
+        }
+
+        function hideMessages() {
+            document.getElementById('errorMessage').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'none';
+        }
+
+        // Закрытие модального окна при клике вне его
+        document.addEventListener('click', function(event) {
+            if (event.target === document.getElementById('addModal')) {
+                closeAddModal();
+            }
+        });
+    </script>
+</body>
+</html>
